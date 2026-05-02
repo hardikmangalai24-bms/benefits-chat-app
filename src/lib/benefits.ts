@@ -1,5 +1,5 @@
 import { ExtractedBenefit, BenefitCategory, DocumentSection } from "./types";
-import { complete } from "./claude";
+import { complete } from "./gemini";
 
 const BATCH_SIZE = 10; // Process 10 sections at a time to stay within token limits
 

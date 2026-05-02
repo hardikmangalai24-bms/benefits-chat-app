@@ -62,11 +62,14 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       streamingMessageId: assistantMessageId,
     });
 
-    // Prepare conversation history
-    const conversationHistory = state.messages.map((msg) => ({
-      role: msg.role,
-      content: msg.content,
-    }));
+    // Prepare conversation history — exclude the synthetic welcome message
+    // Gemini requires the first message to be 'user' role
+    const conversationHistory = state.messages
+      .filter((msg) => msg.id !== "welcome")
+      .map((msg) => ({
+        role: msg.role,
+        content: msg.content,
+      }));
 
     // Attempt to send with retry
     let attempt = 0;

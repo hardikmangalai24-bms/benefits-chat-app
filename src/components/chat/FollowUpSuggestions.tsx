@@ -13,42 +13,25 @@ export default function FollowUpSuggestions({
   onSelect,
   disabled = false,
 }: FollowUpSuggestionsProps) {
-  if (!questions || questions.length === 0) {
-    return null;
-  }
+  if (!questions || questions.length === 0) return null;
 
-  // Show max 3 questions
-  const displayQuestions = questions.slice(0, 3);
+  const display = questions.slice(0, 3);
 
   return (
-    <div className="flex flex-wrap gap-2 mt-3">
-      {displayQuestions.map((question, index) => (
+    <div className="flex flex-wrap gap-1.5">
+      {display.map((q, i) => (
         <motion.button
-          key={index}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{
-            duration: 0.3,
-            delay: index * 0.1, // Stagger: 100ms between each
-            ease: "easeOut",
-          }}
-          onClick={() => !disabled && onSelect(question)}
+          key={i}
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, delay: i * 0.08 }}
+          onClick={() => !disabled && onSelect(q)}
           disabled={disabled}
-          className={`
-            glass-button text-sm px-4 py-2
-            bg-gradient-to-r from-cyan-500/10 to-purple-500/10
-            border border-cyan-500/20
-            hover:from-cyan-500/20 hover:to-purple-500/20
-            hover:border-cyan-500/40
-            disabled:opacity-50 disabled:cursor-not-allowed
-            transition-all duration-300
-          `}
+          className="text-[12px] px-3 py-1.5 rounded-lg text-white/50 hover:text-white/80 bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.05] hover:border-white/[0.1] disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
         >
-          {question}
+          {q}
         </motion.button>
       ))}
     </div>
   );
 }
-
-// Made with Bob

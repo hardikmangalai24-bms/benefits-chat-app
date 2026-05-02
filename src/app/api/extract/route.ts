@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { documentCache } from "../upload/route";
+import { documentCache } from "@/lib/documentCache";
 import { BenefitCategory } from "@/lib/types";
 
 export async function POST(request: NextRequest) {
