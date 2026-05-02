@@ -1,9 +1,8 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { documentCache } from "../upload/route";
-import { findRelevantSections } from "@/lib/benefits";
-import { streamCompletion } from "@/lib/claude";
-import { StreamChunk } from "@/lib/types";
+import { documentCache } from "@/lib/documentCache";
+import { streamCompletion } from "@/lib/gemini";
+import { StreamChunk, DocumentSection } from "@/lib/types";
 
 // Validation schema
 const ChatRequestSchema = z.object({
@@ -19,14 +18,139 @@ const ChatRequestSchema = z.object({
     .default([]),
 });
 
+/**
+ * Smart section selection: returns the most relevant sections for a query.
+ * Falls back to sending ALL content if the document is small enough.
+ */
+function selectRelevantContent(
+  query: string,
+  sections: DocumentSection[],
+  rawText: string
+): string {
+  const MAX_CONTEXT_CHARS = 30000; // Gemini 2.5 Flash handles large context well
+
+  // If total document is small enough, just send everything
+  const totalContent = sections.map((s) => s.content).join("\n\n");
+  if (totalContent.length <= MAX_CONTEXT_CHARS) {
+    return sections
+      .map(
+        (s, i) =>
+          `--- Section ${s.sectionNumber}: ${s.title} (Page ${s.pageNumber}) ---\n${s.content}`
+      )
+      .join("\n\n");
+  }
+
+  // For larger documents, score and select the best sections
+  const queryLower = query.toLowerCase();
+  const queryWords = queryLower
+    .split(/\s+/)
+    .filter((w) => w.length > 2)
+    .filter(
+      (w) =>
+        ![
+          "the",
+          "and",
+          "for",
+          "are",
+          "but",
+          "not",
+          "you",
+          "all",
+          "can",
+          "has",
+          "her",
+          "was",
+          "one",
+          "our",
+          "out",
+          "what",
+          "with",
+          "this",
+          "that",
+          "from",
+          "they",
+          "have",
+          "been",
+          "said",
+          "does",
+          "about",
+          "would",
+          "which",
+          "their",
+          "will",
+          "there",
+          "could",
+          "other",
+          "than",
+          "then",
+          "them",
+          "these",
+          "some",
+          "make",
+          "like",
+          "tell",
+          "show",
+          "give",
+          "please",
+          "document",
+        ].includes(w)
+    );
+
+  const scored = sections.map((section) => {
+    const contentLower = (section.title + " " + section.content).toLowerCase();
+    let score = 0;
+
+    // Exact phrase match (highest weight)
+    if (contentLower.includes(queryLower)) {
+      score += 20;
+    }
+
+    // Individual word matches
+    for (const word of queryWords) {
+      const regex = new RegExp(`\\b${word}`, "gi");
+      const matches = contentLower.match(regex);
+      if (matches) {
+        score += matches.length * 2;
+      }
+      // Title match bonus
+      if (section.title.toLowerCase().includes(word)) {
+        score += 5;
+      }
+    }
+
+    return { section, score };
+  });
+
+  // Sort by relevance
+  scored.sort((a, b) => b.score - a.score);
+
+  // Always include at least the top 8 sections, or until we hit the limit
+  let contextChars = 0;
+  const selected: DocumentSection[] = [];
+
+  for (const { section } of scored) {
+    if (contextChars + section.content.length > MAX_CONTEXT_CHARS && selected.length >= 5) {
+      break;
+    }
+    selected.push(section);
+    contextChars += section.content.length;
+    if (selected.length >= 10) break;
+  }
+
+  return selected
+    .map(
+      (s) =>
+        `--- Section ${s.sectionNumber}: ${s.title} (Page ${s.pageNumber}) ---\n${s.content}`
+    )
+    .join("\n\n");
+}
+
 export async function POST(request: NextRequest) {
   const encoder = new TextEncoder();
 
-  // Create streaming response
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        // Parse and validate request body
         const body = await request.json();
         const validation = ChatRequestSchema.safeParse(body);
 
@@ -44,13 +168,12 @@ export async function POST(request: NextRequest) {
 
         const { message, documentId, conversationHistory } = validation.data;
 
-        // Look up document
         const document = documentCache.get(documentId);
 
         if (!document) {
           const errorChunk: StreamChunk = {
             type: "error",
-            data: `Document not found: ${documentId}. Please upload the document first.`,
+            data: `Document not found. Please re-upload your document.`,
           };
           controller.enqueue(
             encoder.encode(JSON.stringify(errorChunk) + "\n")
@@ -59,57 +182,38 @@ export async function POST(request: NextRequest) {
           return;
         }
 
-        // Find relevant sections
-        const relevantSections = await findRelevantSections(
+        // Build rich context from document sections — NO truncation
+        const contextContent = selectRelevantContent(
           message,
           document.sections,
-          5
+          document.rawText
         );
 
-        // Build system prompt with document data
-        const systemPrompt = `You are a friendly, precise benefits advisor helping a user understand their document.
+        console.log(
+          `Chat context: ${contextContent.length} chars from ${document.sections.length} sections for query: "${message}"`
+        );
 
-Document context: ${document.summary}
+        // Build system prompt — general purpose, not credit-card specific
+        const systemPrompt = `You are BenefitLens AI, an intelligent document assistant. You have been given the full content of a document that the user uploaded. Your job is to answer ANY question about this document accurately and helpfully.
 
-Available sections (JSON): ${JSON.stringify(
-          relevantSections.map((s) => ({
-            id: s.id,
-            number: s.sectionNumber,
-            title: s.title,
-            content: s.content.substring(0, 500), // Truncate for token efficiency
-            page: s.pageNumber,
-          }))
-        )}
+DOCUMENT TITLE: "${document.name}"
+DOCUMENT SUMMARY: ${document.summary}
 
-Extracted benefits (JSON): ${JSON.stringify(
-          document.benefits.slice(0, 20).map((b) => ({
-            title: b.title,
-            category: b.category,
-            value: b.exactValue,
-            conditions: b.conditions,
-            section: b.sectionRef,
-            page: b.pageNumber,
-          }))
-        )}
+DOCUMENT CONTENT:
+${contextContent}
 
-YOUR BEHAVIOR RULES — follow these exactly:
+YOUR RULES:
+1. Answer questions using ONLY the document content provided above. Be thorough and detailed.
+2. If the user asks about something covered in the document, provide a comprehensive answer with specific details, numbers, and quotes from the text.
+3. If the user asks about something NOT in the document, say "This specific topic isn't covered in the document" and then suggest what IS available.
+4. For scenario-based questions (e.g., "what if I spend ₹50,000?"), use the document data to calculate or reason through the answer.
+5. Use markdown formatting: **bold** for key terms, bullet points for lists, and organize information clearly.
+6. Be conversational and helpful. Don't be overly formal.
+7. When referencing specific information, mention which section it came from.
+8. After your response, suggest 2-3 follow-up questions the user might want to ask, formatted as: [FOLLOWUP:question1||question2||question3]
+9. NEVER say "I couldn't find specific information" unless you genuinely searched the provided content and it's truly not there. The document content IS provided to you above — read it carefully.
+10. For general questions like "summarize" or "what does this document cover", provide a thorough overview of ALL the main topics covered.`;
 
-1. NEVER dump all information at once. Start with ONE insight, then ask a clarifying question.
-2. Ask follow-up questions like:
-   - "Are you interested in travel benefits or everyday cashback?"
-   - "Do you spend more on dining or fuel?"
-   - "Would you like to know about the milestone bonuses?"
-3. When stating a benefit value, ALWAYS cite the section: "According to §4.2.1, you get 5% cashback..."
-4. For every factual claim, end with [CITE:sectionId:sectionNumber:excerpt] — this is parsed by the frontend
-5. After your main response, output follow-up questions as [FOLLOWUP:question1||question2||question3]
-6. If a user asks about a specific section number, quote the relevant text verbatim then explain it
-7. If you don't know, say "I couldn't find that in the document — here's what I did find: ..."
-8. Be conversational, warm, and specific. Use exact numbers. Never say "various benefits" — name them.
-
-CITATION FORMAT (mandatory): End every factual sentence with [CITE:sectionId:sectionNumber:brief excerpt under 10 words]
-FOLLOW-UP FORMAT (mandatory): End every response with [FOLLOWUP:question1||question2]`;
-
-        // Build messages for Claude
         const messages = [
           ...conversationHistory.map((msg) => ({
             role: msg.role as "user" | "assistant",
@@ -121,14 +225,12 @@ FOLLOW-UP FORMAT (mandatory): End every response with [FOLLOWUP:question1||quest
           },
         ];
 
-        // Stream from Claude
         let fullResponse = "";
 
         for await (const chunk of streamCompletion(messages, systemPrompt)) {
           if (chunk.type === "text" && chunk.data) {
             fullResponse += chunk.data;
 
-            // Emit text chunk
             const textChunk: StreamChunk = {
               type: "text",
               data: chunk.data,
@@ -146,42 +248,6 @@ FOLLOW-UP FORMAT (mandatory): End every response with [FOLLOWUP:question1||quest
             );
             controller.close();
             return;
-          }
-        }
-
-        // Parse citations from full response
-        const citationRegex = /\[CITE:([^:]+):([^:]+):([^\]]+)\]/g;
-        let match;
-        const citations: Array<{
-          sectionId: string;
-          sectionNumber: string;
-          excerpt: string;
-        }> = [];
-
-        while ((match = citationRegex.exec(fullResponse)) !== null) {
-          citations.push({
-            sectionId: match[1],
-            sectionNumber: match[2],
-            excerpt: match[3],
-          });
-        }
-
-        // Emit citations if found
-        if (citations.length > 0) {
-          for (const citation of citations) {
-            const citationChunk: StreamChunk = {
-              type: "citation",
-              data: {
-                sectionId: citation.sectionId,
-                sectionNumber: citation.sectionNumber,
-                sectionTitle: "",
-                excerpt: citation.excerpt,
-                pageNumber: 1,
-              },
-            };
-            controller.enqueue(
-              encoder.encode(JSON.stringify(citationChunk) + "\n")
-            );
           }
         }
 
@@ -231,5 +297,3 @@ FOLLOW-UP FORMAT (mandatory): End every response with [FOLLOWUP:question1||quest
     },
   });
 }
-
-// Made with Bob

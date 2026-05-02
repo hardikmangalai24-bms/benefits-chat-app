@@ -22,34 +22,22 @@ export async function extractTextFromBuffer(
 
     console.log("Extracting text from PDF...");
 
+    // Collect page texts during a SINGLE parse pass
+    const pageTexts: string[] = [];
+
     const data = await pdf(buffer, {
-      // Extract text page by page
-      pagerender: async (pageData) => {
+      pagerender: async (pageData: any) => {
         const textContent = await pageData.getTextContent();
         const pageText = textContent.items
           .map((item: any) => item.str)
           .join(" ");
+        pageTexts.push(pageText);
         return pageText;
       },
     });
 
     if (!data.text || data.text.trim().length === 0) {
       throw new Error("PDF appears to be empty or contains no extractable text");
-    }
-
-    // Extract individual page texts
-    const pageTexts: string[] = [];
-    
-    // Extract text from each page sequentially
-    for (let i = 1; i <= data.numpages; i++) {
-      const pageData = await pdf(buffer, {
-        max: 1,
-        pagerender: async (pageData) => {
-          const textContent = await pageData.getTextContent();
-          return textContent.items.map((item: any) => item.str).join(" ");
-        },
-      });
-      pageTexts.push(pageData.text);
     }
 
     // Clean the text - remove binary artifacts but preserve formatting

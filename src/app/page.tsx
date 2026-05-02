@@ -18,7 +18,7 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [toasts, setToasts] = useState<Toast[]>([]);
-  const { uploadDocument, document } = useDocumentStore();
+  const { uploadDocument, uploadFromUrl } = useDocumentStore();
 
   const showToast = (message: string, type: ToastType) => {
     const id = Date.now().toString();
@@ -29,153 +29,122 @@ export default function Home() {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
   };
 
-  const handleError = (message: string) => {
-    showToast(message, "error");
-  };
-
   const handleFileUpload = async (file: File) => {
     setIsProcessing(true);
     setUploadProgress(0);
+    const progressInterval = setInterval(() => {
+      setUploadProgress((prev) => (prev >= 90 ? prev : prev + 3));
+    }, 600);
 
     try {
-      // Simulate progress updates
-      const progressInterval = setInterval(() => {
-        setUploadProgress((prev) => {
-          if (prev >= 95) {
-            clearInterval(progressInterval);
-            return prev;
-          }
-          return prev + 5;
-        });
-      }, 500);
-
       await uploadDocument(file);
-
       clearInterval(progressInterval);
       setUploadProgress(100);
-
-      // Show success and navigate
       showToast("Document processed successfully!", "success");
-      
-      setTimeout(() => {
-        router.push("/chat");
-      }, 1000);
+      const doc = useDocumentStore.getState().document;
+      if (doc) {
+        setTimeout(() => router.push("/chat"), 600);
+      } else {
+        throw new Error("Processing completed but no document returned.");
+      }
     } catch (error: any) {
-      console.error("Error processing document:", error);
-      showToast(
-        error.message || "Failed to process document. Please try again.",
-        "error"
-      );
+      clearInterval(progressInterval);
+      showToast(error.message || "Failed to process document.", "error");
       setIsProcessing(false);
       setUploadProgress(0);
     }
   };
 
-  const handleExampleClick = (name: string) => {
-    showToast("Upload your own PDF to get started", "info");
+  const handleUrlUpload = async (url: string) => {
+    setIsProcessing(true);
+    setUploadProgress(0);
+    const progressInterval = setInterval(() => {
+      setUploadProgress((prev) => (prev >= 90 ? prev : prev + 3));
+    }, 600);
+
+    try {
+      await uploadFromUrl(url);
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+      showToast("Content analyzed successfully!", "success");
+      const doc = useDocumentStore.getState().document;
+      if (doc) {
+        setTimeout(() => router.push("/chat"), 600);
+      } else {
+        throw new Error("Processing completed but no document returned.");
+      }
+    } catch (error: any) {
+      clearInterval(progressInterval);
+      showToast(error.message || "Failed to process URL.", "error");
+      setIsProcessing(false);
+      setUploadProgress(0);
+    }
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Animated mesh gradient background */}
-      <div className="fixed inset-0 -z-10 bg-dark-900">
-        <div
-          className="absolute inset-0 opacity-30"
-          style={{
-            background: `
-              radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.15) 0%, transparent 50%),
-              radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
-              radial-gradient(circle at 40% 20%, rgba(245, 158, 11, 0.1) 0%, transparent 50%)
-            `,
-            backgroundSize: "200% 200%",
-            animation: "meshGradient 15s ease infinite",
-          }}
-        />
+    <div className="min-h-screen relative overflow-hidden bg-dark-900">
+      {/* Subtle gradient orbs */}
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-brand-600/[0.07] blur-[120px]" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-brand-400/[0.05] blur-[100px]" />
       </div>
 
       {/* Content */}
-      <div className="relative flex items-center justify-center min-h-screen p-4">
-        <div className="max-w-2xl w-full space-y-8">
+      <div className="relative flex items-center justify-center min-h-screen px-4 py-12">
+        <div className="max-w-xl w-full space-y-10">
           {/* Header */}
           <div className="text-center space-y-4">
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-accent-cyan via-accent-purple to-accent-gold bg-clip-text text-transparent">
-              BenefitLens
-            </h1>
-            <p className="text-lg text-white/70 max-w-xl mx-auto">
-              Upload any policy document and discover your exact benefits in seconds
-            </p>
-            
-            {/* Trust indicators */}
-            <div className="flex items-center justify-center gap-6 text-sm text-white/50">
-              <div className="flex items-center gap-2">
-                <span>🔒</span>
-                <span>Processed locally</span>
+            {/* Logo */}
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-lg shadow-brand-500/20">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
               </div>
-              <div className="w-px h-4 bg-white/20" />
-              <div className="flex items-center gap-2">
-                <span>✨</span>
-                <span>AI-Powered</span>
-              </div>
+              <h1 className="text-3xl font-bold text-white tracking-tight">
+                Benefit<span className="gradient-text">Lens</span>
+              </h1>
             </div>
+            <p className="text-[15px] text-white/50 max-w-md mx-auto leading-relaxed">
+              Upload a document or paste a URL — ask questions, get precise answers instantly.
+            </p>
           </div>
 
-          {/* Upload Area */}
-          <div className="glass-card p-8 rounded-xl">
+          {/* Upload Card */}
+          <div className="glass-card-elevated p-6 sm:p-8">
             {isProcessing ? (
               <ProcessingState progress={uploadProgress} />
             ) : (
-              <DropZone onFileSelect={handleFileUpload} onError={handleError} />
+              <DropZone
+                onFileSelect={handleFileUpload}
+                onUrlSubmit={handleUrlUpload}
+                onError={(msg) => showToast(msg, "error")}
+              />
             )}
           </div>
 
-          {/* Example Documents Section */}
+          {/* Features */}
           {!isProcessing && (
-            <div className="space-y-4">
-              <p className="text-center text-sm text-white/50">
-                Example documents that work:
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {[
-                  { emoji: "💳", name: "Credit Card T&C" },
-                  { emoji: "🏥", name: "Health Insurance Policy" },
-                  { emoji: "📋", name: "Employee Benefits Handbook" },
-                ].map((example) => (
-                  <button
-                    key={example.name}
-                    onClick={() => handleExampleClick(example.name)}
-                    className="glass-card p-4 text-center hover:glass-hover transition-all duration-300 group"
-                  >
-                    <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">
-                      {example.emoji}
-                    </div>
-                    <h3 className="font-medium text-sm text-white/80 mb-1">
-                      {example.name}
-                    </h3>
-                    <p className="text-xs text-accent-cyan">Try with a sample →</p>
-                  </button>
-                ))}
-              </div>
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { icon: "⚡", label: "Instant Analysis" },
+                { icon: "🔒", label: "Private & Secure" },
+                { icon: "💬", label: "AI Chat" },
+              ].map((f) => (
+                <div
+                  key={f.label}
+                  className="glass-card px-3 py-4 text-center"
+                >
+                  <div className="text-xl mb-1.5">{f.icon}</div>
+                  <p className="text-xs text-white/40 font-medium">{f.label}</p>
+                </div>
+              ))}
             </div>
           )}
         </div>
       </div>
 
-      {/* Toast notifications */}
       <ToastContainer toasts={toasts} onRemove={removeToast} />
-
-      {/* CSS Animation */}
-      <style jsx>{`
-        @keyframes meshGradient {
-          0%, 100% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-        }
-      `}</style>
     </div>
   );
 }
-
-// Made with Bob

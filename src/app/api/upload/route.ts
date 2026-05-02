@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { processDocument } from "@/lib/pdf";
-import { extractBenefits } from "@/lib/benefits";
 import { ProcessedDocument, UploadResponse } from "@/lib/types";
-
-// Server-side document cache (module-level for demo)
-const documentCache = new Map<string, ProcessedDocument>();
+import { documentCache } from "@/lib/documentCache";
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
@@ -112,21 +109,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Extract benefits
-    try {
-      const benefits = await extractBenefits(document.sections);
-      document.benefits = benefits;
-    } catch (error: any) {
-      console.error("Benefit extraction error:", error);
-      // Continue without benefits rather than failing completely
-      document.benefits = [];
-    }
+    // Skip automatic benefit extraction during upload to conserve API quota.
+    // The chat can answer benefit questions directly from document sections.
+    document.benefits = [];
 
-    // Store in cache
+    // Add processing metadata
+    document.metadata = {
+      pageCount: document.pageCount,
+      extractedAt: new Date().toISOString(),
+      processingTime: Date.now() - start,
+    };
+
+    // Store in global cache (persists across HMR)
     documentCache.set(document.id, document);
 
     console.log(
-      `Document processed successfully: ${document.id} (${document.benefits.length} benefits extracted)`
+      `Document processed successfully: ${document.id} (${document.benefits.length} benefits, ${document.sections.length} sections) in ${Date.now() - start}ms`
     );
 
     // Return success response
@@ -160,8 +158,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-// Export the cache for use by other routes
-export { documentCache };
-
-// Made with Bob

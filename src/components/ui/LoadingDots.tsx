@@ -7,7 +7,7 @@ interface LoadingDotsProps {
 
 export default function LoadingDots({
   size = "md",
-  color = "bg-cyan-400",
+  color = "bg-brand-400",
 }: LoadingDotsProps) {
   const sizeClasses = {
     sm: "w-1.5 h-1.5",
