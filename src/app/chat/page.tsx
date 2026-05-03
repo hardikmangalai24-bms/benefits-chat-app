@@ -7,6 +7,7 @@ import { useDocumentStore } from "@/store/documentStore";
 import { useChatStore } from "@/store/chatStore";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import Logo from "@/components/ui/Logo";
+import ExportButton from "@/components/chat/ExportButton";
 import { Home, Plus } from "lucide-react";
 import Link from "next/link";
 
@@ -65,6 +66,7 @@ export default function ChatPage() {
         </div>
 
         <div className="flex items-center gap-2">
+          <ExportButton />
           <ThemeToggle />
           <button
             onClick={() => { clearChat(); router.push("/"); }}
