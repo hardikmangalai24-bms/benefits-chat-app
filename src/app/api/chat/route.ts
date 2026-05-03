@@ -27,7 +27,7 @@ function selectRelevantContent(
   sections: DocumentSection[],
   rawText: string
 ): string {
-  const MAX_CONTEXT_CHARS = 30000; // Gemini 2.5 Flash handles large context well
+  const MAX_CONTEXT_CHARS = 600000; // ~1 lakh words (Gemini 2.5 Flash handles large context well)
 
   // If total document is small enough, just send everything
   const totalContent = sections.map((s) => s.content).join("\n\n");

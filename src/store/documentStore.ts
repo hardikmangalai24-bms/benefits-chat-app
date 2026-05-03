@@ -92,7 +92,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
 
       if (error.name === "AbortError") {
         errorMessage = "Upload timed out. Please try a smaller document.";
-      } else if (error.message?.includes("Failed to fetch")) {
+      } else if (error.message === "Failed to fetch" || error.message === "NetworkError when attempting to fetch resource.") {
         errorMessage = "Network error. Please check your connection and try again.";
       } else if (error.message) {
         errorMessage = error.message;
@@ -173,7 +173,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
 
       if (error.name === "AbortError") {
         errorMessage = "URL fetch timed out. Please try again.";
-      } else if (error.message?.includes("Failed to fetch")) {
+      } else if (error.message === "Failed to fetch" || error.message === "NetworkError when attempting to fetch resource.") {
         errorMessage = "Network error. Please check your connection and try again.";
       } else if (error.message) {
         errorMessage = error.message;
