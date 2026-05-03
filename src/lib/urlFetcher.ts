@@ -1,7 +1,7 @@
 import { DocumentSection, ProcessedDocument } from "./types";
 import { randomUUID } from "crypto";
 
-const MAX_URL_CONTENT_LENGTH = 500_000; // 500KB of text max
+const MAX_URL_CONTENT_LENGTH = 1_000_000; // ~1MB of text max (to support 1 lakh words)
 
 /**
  * Fetch and extract text content from a URL
@@ -31,6 +31,7 @@ export async function fetchUrlContent(url: string): Promise<{
   try {
     const response = await fetch(url, {
       signal: controller.signal,
+      cache: "no-store",
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -39,6 +40,9 @@ export async function fetchUrlContent(url: string): Promise<{
     });
 
     if (!response.ok) {
+      if (response.status === 403 || response.status === 401) {
+        throw new Error(`The website blocked access (HTTP ${response.status}). This usually means the site has bot-protection preventing automatic extraction. Please try uploading a PDF instead.`);
+      }
       throw new Error(`Failed to fetch URL: HTTP ${response.status}`);
     }
 
