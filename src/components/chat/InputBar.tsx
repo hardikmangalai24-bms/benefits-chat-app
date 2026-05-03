@@ -42,7 +42,7 @@ export default function InputBar() {
         {/* Attach button */}
         <button
           type="button"
-          className="w-10 h-10 flex items-center justify-center rounded-xl text-white/30 hover:text-white/50 hover:bg-white/[0.04] transition-all flex-shrink-0"
+          className="w-10 h-10 flex items-center justify-center rounded-xl text-gray-400 dark:text-white/30 hover:text-gray-600 dark:hover:text-white/50 hover:bg-gray-100 dark:hover:bg-white/[0.04] transition-all flex-shrink-0"
           title="Attach document (current session)"
           disabled
         >
@@ -80,7 +80,7 @@ export default function InputBar() {
             transition-all duration-200
             ${input.trim() && !isStreaming && !isOverLimit
               ? "bg-brand-600 hover:bg-brand-500 text-white shadow-md shadow-brand-600/20 hover:shadow-brand-500/30"
-              : "bg-white/[0.04] text-white/20 cursor-not-allowed"
+              : "bg-gray-200 dark:bg-white/[0.04] text-gray-400 dark:text-white/20 cursor-not-allowed"
             }
           `}
         >
@@ -91,8 +91,8 @@ export default function InputBar() {
       </div>
 
       {/* Helper */}
-      <p className="text-[10px] text-white/20 mt-2 text-center">
-        <kbd className="px-1 py-0.5 bg-white/[0.04] rounded text-white/30 text-[9px]">Enter</kbd> to send · <kbd className="px-1 py-0.5 bg-white/[0.04] rounded text-white/30 text-[9px]">Shift+Enter</kbd> for new line
+      <p className="text-[10px] text-gray-500 dark:text-white/20 mt-2 text-center">
+        <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-white/[0.04] rounded text-gray-600 dark:text-white/30 text-[9px]">Enter</kbd> to send · <kbd className="px-1 py-0.5 bg-gray-200 dark:bg-white/[0.04] rounded text-gray-600 dark:text-white/30 text-[9px]">Shift+Enter</kbd> for new line
       </p>
     </form>
   );

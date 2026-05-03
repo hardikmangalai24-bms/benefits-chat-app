@@ -56,13 +56,13 @@ export default function DropZone({ onFileSelect, onUrlSubmit, onError }: DropZon
   return (
     <div className="space-y-5">
       {/* Tab Switcher */}
-      <div className="flex rounded-xl overflow-hidden border border-white/[0.06] bg-white/[0.02]">
+      <div className="flex rounded-xl overflow-hidden border border-gray-200 dark:border-white/[0.06] bg-gray-50 dark:bg-white/[0.02]">
         <button
           onClick={() => setActiveTab("pdf")}
           className={`flex-1 py-2.5 px-4 text-[13px] font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
             activeTab === "pdf"
-              ? "bg-brand-600/15 text-brand-300 border-b-2 border-brand-500"
-              : "text-white/40 hover:text-white/60 hover:bg-white/[0.03]"
+              ? "bg-brand-100 dark:bg-brand-600/15 text-brand-600 dark:text-brand-300 border-b-2 border-brand-500"
+              : "text-gray-500 dark:text-white/40 hover:text-gray-700 dark:hover:text-white/60 hover:bg-gray-100 dark:hover:bg-white/[0.03]"
           }`}
         >
           {/* Document icon */}
@@ -75,8 +75,8 @@ export default function DropZone({ onFileSelect, onUrlSubmit, onError }: DropZon
           onClick={() => setActiveTab("url")}
           className={`flex-1 py-2.5 px-4 text-[13px] font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
             activeTab === "url"
-              ? "bg-brand-600/15 text-brand-300 border-b-2 border-brand-500"
-              : "text-white/40 hover:text-white/60 hover:bg-white/[0.03]"
+              ? "bg-brand-100 dark:bg-brand-600/15 text-brand-600 dark:text-brand-300 border-b-2 border-brand-500"
+              : "text-gray-500 dark:text-white/40 hover:text-gray-700 dark:hover:text-white/60 hover:bg-gray-100 dark:hover:bg-white/[0.03]"
           }`}
         >
           {/* Link icon */}
@@ -98,25 +98,25 @@ export default function DropZone({ onFileSelect, onUrlSubmit, onError }: DropZon
             min-h-[220px] border-2 border-dashed rounded-2xl p-8
             cursor-pointer transition-all duration-200 flex flex-col items-center justify-center gap-5 text-center
             ${isDragOver
-              ? "border-brand-500/50 bg-brand-500/[0.05] scale-[1.01]"
-              : "border-white/[0.08] hover:border-brand-500/30 hover:bg-white/[0.02]"
+              ? "border-brand-500/50 bg-brand-50 dark:bg-brand-500/[0.05] scale-[1.01]"
+              : "border-gray-200 dark:border-white/[0.08] hover:border-brand-300 dark:hover:border-brand-500/30 hover:bg-gray-50 dark:hover:bg-white/[0.02]"
             }
           `}
         >
           <input ref={fileInputRef} type="file" accept=".pdf" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} className="hidden" />
 
           {/* Upload icon */}
-          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${isDragOver ? "bg-brand-500/15 scale-110" : "bg-white/[0.04]"}`}>
-            <svg className="w-7 h-7 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${isDragOver ? "bg-brand-100 dark:bg-brand-500/15 scale-110" : "bg-gray-100 dark:bg-white/[0.04]"}`}>
+            <svg className="w-7 h-7 text-brand-500 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
             </svg>
           </div>
 
           <div className="space-y-1.5">
-            <p className="text-[15px] font-medium text-white/80">
+            <p className="text-[15px] font-medium text-gray-800 dark:text-white/80">
               {isDragOver ? "Drop your file" : "Drop your PDF here"}
             </p>
-            <p className="text-[12px] text-white/35">or click to browse · Max 50MB</p>
+            <p className="text-[12px] text-gray-500 dark:text-white/35">or click to browse · Max 50MB</p>
             {selectedFile && (
               <p className="text-[12px] text-brand-400 font-medium mt-1">
                 ✓ {selectedFile.name}
@@ -128,17 +128,17 @@ export default function DropZone({ onFileSelect, onUrlSubmit, onError }: DropZon
 
       {/* URL Tab */}
       {activeTab === "url" && (
-        <div className="min-h-[220px] rounded-2xl p-8 border border-white/[0.06] bg-white/[0.01] flex flex-col items-center justify-center gap-5">
+        <div className="min-h-[220px] rounded-2xl p-8 border border-gray-100 dark:border-white/[0.06] bg-white dark:bg-white/[0.01] flex flex-col items-center justify-center gap-5">
           {/* Globe icon */}
-          <div className="w-14 h-14 rounded-2xl bg-brand-600/10 flex items-center justify-center">
-            <svg className="w-7 h-7 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-14 h-14 rounded-2xl bg-brand-50 dark:bg-brand-600/10 flex items-center justify-center">
+            <svg className="w-7 h-7 text-brand-500 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
             </svg>
           </div>
 
           <div className="text-center space-y-1.5">
-            <p className="text-[15px] font-medium text-white/80">Paste a webpage URL</p>
-            <p className="text-[12px] text-white/35">We'll extract and analyze the content</p>
+            <p className="text-[15px] font-medium text-gray-800 dark:text-white/80">Paste a webpage URL</p>
+            <p className="text-[12px] text-gray-500 dark:text-white/35">We'll extract and analyze the content</p>
           </div>
 
           <div className="w-full max-w-sm space-y-3">
@@ -153,7 +153,7 @@ export default function DropZone({ onFileSelect, onUrlSubmit, onError }: DropZon
                 className={`glass-input w-full py-2.5 px-4 text-[13px] ${isUrlLoading ? "opacity-40" : ""}`}
               />
               {url && (
-                <button onClick={() => setUrl("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60">
+                <button onClick={() => setUrl("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/30 hover:text-gray-600 dark:hover:text-white/60">
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>

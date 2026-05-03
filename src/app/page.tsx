@@ -2,10 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { motion } from "framer-motion";
 import DropZone from "@/components/upload/DropZone";
 import ProcessingState from "@/components/upload/ProcessingState";
 import { ToastContainer, ToastType } from "@/components/ui/Toast";
 import { useDocumentStore } from "@/store/documentStore";
+import ThemeToggle from "@/components/ui/ThemeToggle";
+import Logo from "@/components/ui/Logo";
 
 interface Toast {
   id: string;
@@ -82,36 +85,47 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-dark-900">
+    <div className="min-h-screen relative overflow-hidden bg-gray-50 dark:bg-dark-900 transition-colors duration-200">
+      {/* Top Navigation */}
+      <div className="absolute top-0 right-0 p-4 sm:p-6 z-50">
+        <ThemeToggle />
+      </div>
+
       {/* Subtle gradient orbs */}
       <div className="fixed inset-0 -z-10">
-        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-brand-600/[0.07] blur-[120px]" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-brand-400/[0.05] blur-[100px]" />
+        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-brand-600/[0.04] dark:bg-brand-600/[0.07] blur-[120px] transition-all duration-500" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-brand-400/[0.03] dark:bg-brand-400/[0.05] blur-[100px] transition-all duration-500" />
       </div>
 
       {/* Content */}
       <div className="relative flex items-center justify-center min-h-screen px-4 py-12">
         <div className="max-w-xl w-full space-y-10">
           {/* Header */}
-          <div className="text-center space-y-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="text-center space-y-4"
+          >
             {/* Logo */}
             <div className="flex items-center justify-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-lg shadow-brand-500/20">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <h1 className="text-3xl font-bold text-white tracking-tight">
+              <Logo className="w-12 h-12" />
+              <h1 className="text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
                 Benefit<span className="gradient-text">Lens</span>
               </h1>
             </div>
-            <p className="text-[15px] text-white/50 max-w-md mx-auto leading-relaxed">
+            <p className="text-[15px] text-gray-600 dark:text-white/50 max-w-md mx-auto leading-relaxed">
               Upload a document or paste a URL — ask questions, get precise answers instantly.
             </p>
-          </div>
+          </motion.div>
 
           {/* Upload Card */}
-          <div className="glass-card-elevated p-6 sm:p-8">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+            className="glass-card-elevated p-6 sm:p-8"
+          >
             {isProcessing ? (
               <ProcessingState progress={uploadProgress} />
             ) : (
@@ -121,11 +135,16 @@ export default function Home() {
                 onError={(msg) => showToast(msg, "error")}
               />
             )}
-          </div>
+          </motion.div>
 
           {/* Features */}
           {!isProcessing && (
-            <div className="grid grid-cols-3 gap-3">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
+              className="grid grid-cols-3 gap-3"
+            >
               {[
                 { icon: "⚡", label: "Instant Analysis" },
                 { icon: "🔒", label: "Private & Secure" },
@@ -133,13 +152,13 @@ export default function Home() {
               ].map((f) => (
                 <div
                   key={f.label}
-                  className="glass-card px-3 py-4 text-center"
+                  className="glass-card px-3 py-4 text-center hover:scale-105 transition-transform duration-300"
                 >
                   <div className="text-xl mb-1.5">{f.icon}</div>
-                  <p className="text-xs text-white/40 font-medium">{f.label}</p>
+                  <p className="text-xs text-gray-500 dark:text-white/40 font-medium">{f.label}</p>
                 </div>
               ))}
-            </div>
+            </motion.div>
           )}
         </div>
       </div>

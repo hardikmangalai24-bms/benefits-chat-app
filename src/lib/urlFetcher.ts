@@ -222,7 +222,7 @@ function splitUrlTextIntoSections(
 
   // If no sections created, split the raw text into chunks
   if (sections.length === 0) {
-    const chunks = text.match(/.{1,3000}/gs) || [text];
+    const chunks = text.match(/[\s\S]{1,3000}/g) || [text];
     for (let i = 0; i < chunks.length; i++) {
       sections.push({
         id: randomUUID(),

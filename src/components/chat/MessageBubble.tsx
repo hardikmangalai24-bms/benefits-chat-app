@@ -33,9 +33,9 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
     return (
       <div className="flex justify-end">
         <div className="max-w-[75%] flex items-start gap-2.5">
-          <div className="bg-brand-600/20 border border-brand-500/20 rounded-2xl rounded-tr-md px-4 py-3">
-            <p className="text-[14px] text-white/90 whitespace-pre-wrap leading-relaxed">{message.content}</p>
-            <p className="text-[10px] text-white/25 mt-2">
+          <div className="bg-brand-600/10 dark:bg-brand-600/20 border border-brand-500/20 rounded-2xl rounded-tr-md px-4 py-3">
+            <p className="text-[14px] text-gray-900 dark:text-white/90 whitespace-pre-wrap leading-relaxed">{message.content}</p>
+            <p className="text-[10px] text-gray-500 dark:text-white/25 mt-2">
               {new Date(message.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
             </p>
           </div>
@@ -62,43 +62,43 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
         </div>
 
         <div className="flex-1 space-y-2.5">
-          <div className="bg-white/[0.03] border border-white/[0.05] rounded-2xl rounded-tl-md px-4 py-3">
+          <div className="bg-white shadow-sm dark:shadow-none dark:bg-white/[0.03] border border-black/5 dark:border-white/[0.05] rounded-2xl rounded-tl-md px-4 py-3">
             {displayContent ? (
-              <div className="prose prose-invert prose-sm max-w-none">
+              <div className="prose dark:prose-invert prose-sm max-w-none">
                 <ReactMarkdown
                   components={{
                     p: ({ children }) => (
-                      <p className="text-[14px] text-white/80 mb-3 last:mb-0 leading-relaxed">{children}</p>
+                      <p className="text-[14px] text-gray-800 dark:text-white/80 mb-3 last:mb-0 leading-relaxed">{children}</p>
                     ),
                     strong: ({ children }) => (
-                      <strong className="text-white font-semibold">{children}</strong>
+                      <strong className="text-gray-900 dark:text-white font-semibold">{children}</strong>
                     ),
                     em: ({ children }) => (
-                      <em className="text-brand-300 not-italic font-medium">{children}</em>
+                      <em className="text-brand-600 dark:text-brand-300 not-italic font-medium">{children}</em>
                     ),
                     ul: ({ children }) => (
-                      <ul className="list-disc list-outside ml-4 space-y-1.5 text-white/70 my-2">{children}</ul>
+                      <ul className="list-disc list-outside ml-4 space-y-1.5 text-gray-700 dark:text-white/70 my-2">{children}</ul>
                     ),
                     ol: ({ children }) => (
-                      <ol className="list-decimal list-outside ml-4 space-y-1.5 text-white/70 my-2">{children}</ol>
+                      <ol className="list-decimal list-outside ml-4 space-y-1.5 text-gray-700 dark:text-white/70 my-2">{children}</ol>
                     ),
                     li: ({ children }) => (
-                      <li className="text-[14px] text-white/70 leading-relaxed">{children}</li>
+                      <li className="text-[14px] text-gray-700 dark:text-white/70 leading-relaxed">{children}</li>
                     ),
                     h1: ({ children }) => (
-                      <h3 className="text-base font-semibold text-white mt-4 mb-2">{children}</h3>
+                      <h3 className="text-base font-semibold text-gray-900 dark:text-white mt-4 mb-2">{children}</h3>
                     ),
                     h2: ({ children }) => (
-                      <h4 className="text-[15px] font-semibold text-white mt-3 mb-2">{children}</h4>
+                      <h4 className="text-[15px] font-semibold text-gray-900 dark:text-white mt-3 mb-2">{children}</h4>
                     ),
                     h3: ({ children }) => (
-                      <h5 className="text-[14px] font-semibold text-white/90 mt-3 mb-1.5">{children}</h5>
+                      <h5 className="text-[14px] font-semibold text-gray-800 dark:text-white/90 mt-3 mb-1.5">{children}</h5>
                     ),
                     code: ({ children }) => (
-                      <code className="px-1.5 py-0.5 bg-white/[0.06] rounded text-[13px] text-brand-300 font-mono">{children}</code>
+                      <code className="px-1.5 py-0.5 bg-black/5 dark:bg-white/[0.06] rounded text-[13px] text-brand-600 dark:text-brand-300 font-mono">{children}</code>
                     ),
                     blockquote: ({ children }) => (
-                      <blockquote className="border-l-2 border-brand-500/30 pl-4 my-3 text-white/60">{children}</blockquote>
+                      <blockquote className="border-l-2 border-brand-500/30 pl-4 my-3 text-gray-500 dark:text-white/60">{children}</blockquote>
                     ),
                   }}
                 >
@@ -110,7 +110,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
             )}
 
             {displayContent && (
-              <p className="text-[10px] text-white/20 mt-3">
+              <p className="text-[10px] text-gray-400 dark:text-white/20 mt-3">
                 {new Date(message.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
               </p>
             )}

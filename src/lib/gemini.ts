@@ -4,7 +4,7 @@ import { StreamChunk } from "./types";
 // Initialize Gemini client
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
-const MODEL = "gemini-2.5-flash";
+const MODEL = "gemini-flash-latest";
 const MAX_TOKENS = 4096;
 
 // Safety settings — allow all content for document analysis
@@ -190,7 +190,7 @@ export async function* streamCompletion(
 
       if (isRateLimit && attempt < MAX_RETRIES) {
         const delay = Math.pow(2, attempt + 1) * 1000;
-        console.log(`Stream rate limited, retrying in ${delay / 1000}s (attempt ${attempt + 1}/${MAX_RETRIES})...`);
+        console.log(`Stream rate limited, Error: ${error.message}. Retrying in ${delay / 1000}s (attempt ${attempt + 1}/${MAX_RETRIES})...`);
         await new Promise((resolve) => setTimeout(resolve, delay));
         continue;
       }
