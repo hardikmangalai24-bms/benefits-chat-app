@@ -21,7 +21,7 @@ export default function ProcessingState({ progress }: ProcessingStateProps) {
       {/* Spinner */}
       <div className="relative w-24 h-24">
         <svg className="w-24 h-24 transform -rotate-90">
-          <circle cx="48" cy="48" r="42" stroke="rgba(255,255,255,0.05)" strokeWidth="6" fill="none" />
+          <circle cx="48" cy="48" r="42" className="stroke-gray-200 dark:stroke-white/5" strokeWidth="6" fill="none" />
           <motion.circle
             cx="48" cy="48" r="42"
             stroke="url(#progressGrad)"
@@ -41,13 +41,13 @@ export default function ProcessingState({ progress }: ProcessingStateProps) {
           </defs>
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-xl font-bold text-white/80">{progress}%</span>
+          <span className="text-xl font-bold text-gray-800 dark:text-white/80">{progress}%</span>
         </div>
       </div>
 
       {/* Progress bar */}
       <div className="w-full max-w-sm space-y-3">
-        <div className="h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
+        <div className="h-1.5 bg-gray-200 dark:bg-white/[0.04] rounded-full overflow-hidden">
           <motion.div
             className="h-full bg-gradient-to-r from-brand-500 to-brand-400 rounded-full"
             initial={{ width: "0%" }}
@@ -57,7 +57,7 @@ export default function ProcessingState({ progress }: ProcessingStateProps) {
         </div>
 
         <div className="text-center space-y-1">
-          <p className="text-[14px] font-medium text-white/70">{getStatusText(progress)}</p>
+          <p className="text-[14px] font-medium text-gray-600 dark:text-white/70">{getStatusText(progress)}</p>
           <div className="flex items-center justify-center gap-2">
             <LoadingDots size="sm" />
           </div>

@@ -97,8 +97,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
               msg.id === assistantMessageId
                 ? {
                     ...msg,
-                    content:
-                      "Sorry, I encountered an error. Please try again.",
+                    content: error.message || "Sorry, I encountered an error. Please try again.",
                     isLoading: false,
                   }
                 : msg

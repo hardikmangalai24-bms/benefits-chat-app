@@ -27,7 +27,7 @@ export default function FollowUpSuggestions({
           transition={{ duration: 0.2, delay: i * 0.08 }}
           onClick={() => !disabled && onSelect(q)}
           disabled={disabled}
-          className="text-[12px] px-3 py-1.5 rounded-lg text-white/50 hover:text-white/80 bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.05] hover:border-white/[0.1] disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
+          className="text-[12px] px-3 py-1.5 rounded-lg text-gray-500 dark:text-white/50 hover:text-gray-800 dark:hover:text-white/80 bg-black/5 dark:bg-white/[0.03] hover:bg-black/10 dark:hover:bg-white/[0.06] border border-black/5 dark:border-white/[0.05] hover:border-black/10 dark:hover:border-white/[0.1] disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
         >
           {q}
         </motion.button>

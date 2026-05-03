@@ -5,6 +5,7 @@ import { useChatStore } from "@/store/chatStore";
 import { useDocumentStore } from "@/store/documentStore";
 import MessageBubble from "@/components/chat/MessageBubble";
 import InputBar from "./InputBar";
+import Logo from "@/components/ui/Logo";
 
 export default function ChatWindow() {
   const messages = useChatStore((state) => state.messages);
@@ -45,16 +46,12 @@ export default function ChatWindow() {
         <div className="max-w-3xl mx-auto space-y-5">
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center space-y-8 pt-20">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-lg shadow-brand-500/20">
-                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                </svg>
-              </div>
+              <Logo className="w-16 h-16 shadow-xl" />
               <div className="space-y-2">
-                <h2 className="text-xl font-semibold text-white/90">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white/90">
                   Ask me anything
                 </h2>
-                <p className="text-sm text-white/40 max-w-sm">
+                <p className="text-sm text-gray-500 dark:text-white/40 max-w-sm">
                   I've analyzed your document and I'm ready to help
                 </p>
               </div>
@@ -63,7 +60,7 @@ export default function ChatWindow() {
                   <button
                     key={i}
                     onClick={() => handleSuggestion(q)}
-                    className="text-left px-4 py-3 rounded-xl text-sm text-white/60 hover:text-white/90 bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.04] hover:border-white/[0.08] transition-all duration-200"
+                    className="text-left px-4 py-3 rounded-xl text-sm text-gray-700 dark:text-white/60 hover:text-gray-900 dark:hover:text-white/90 bg-white/80 dark:bg-white/[0.02] hover:bg-white dark:hover:bg-white/[0.05] border border-black/5 dark:border-white/[0.04] hover:border-black/10 dark:hover:border-white/[0.08] transition-all duration-200 shadow-sm dark:shadow-none"
                   >
                     {q}
                   </button>
@@ -96,7 +93,7 @@ export default function ChatWindow() {
       )}
 
       {/* Input */}
-      <div className="border-t border-white/[0.04] px-4 sm:px-6 py-4 bg-dark-900/60 backdrop-blur-xl">
+      <div className="border-t border-black/5 dark:border-white/[0.04] px-4 sm:px-6 py-4 bg-white/60 dark:bg-dark-900/60 backdrop-blur-xl">
         <div className="max-w-3xl mx-auto">
           <InputBar />
         </div>
