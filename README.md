@@ -273,4 +273,3 @@ For issues or questions, please open an issue on GitHub.
 
 ---
 
-**Made with ❤️ using Next.js 14 and Claude AI**
